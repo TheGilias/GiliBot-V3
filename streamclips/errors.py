@@ -17,3 +17,6 @@ class InvalidTwitchCredentials(StreamsError):
 class InvalidYoutubeCredentials(StreamsError):
     pass
 
+
+class OfflineStream(StreamsError):
+    pass
