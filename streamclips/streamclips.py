@@ -377,7 +377,6 @@ class StreamClips(commands.Cog):
                 await self.maybe_renew_twitch_bearer_token()
                 embeds = await stream.get_clips()
             else:
-                log.info ("Come on dude.")
                 embeds = await stream.get_clips()
             log.info ("  " + len(embeds) + " clips found")
             await self.save_streams()
