@@ -368,12 +368,10 @@ class MixerStream(Stream):
     token_name = None  # This streaming services don't currently require an API key
 
     async def get_clips(self):
-        log.info("Obtaining clip list from Mixer API.")
-
         url = MIXER_CLIPS_ENDPOINT + "/" + self.name
         clip_embeds = []
 
-        log.info(f"Obtaining clip list from URL {url}")
+        log.debug(f"Obtaining clip list from URL {url}")
 
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as r:

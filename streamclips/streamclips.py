@@ -366,10 +366,10 @@ class StreamClips(commands.Cog):
             await asyncio.sleep(await self.config.refresh_timer())
 
     async def check_clips(self):
-        log.info("Checking streamers for clips")
+        log.debug("Checking streamers for clips")
 
         for stream in self.streams:
-            log.info("Checking for new " + stream.__class__.__name__ + " clips from " + stream.name)
+            log.debug(f"Checking for new {stream.__class__.__name__ } clips from {stream.name}")
 
             #with contextlib.suppress(Exception):
             if stream.__class__.__name__ == "TwitchStream":
@@ -377,7 +377,7 @@ class StreamClips(commands.Cog):
                 embeds = await stream.get_clips()
             else:
                 embeds = await stream.get_clips()
-            log.info (f"{len(embeds)} clips found")
+            log.debug (f"{len(embeds)} clips found")
             await self.save_streams()
             
             for channel_id in stream.channels:
