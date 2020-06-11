@@ -221,7 +221,7 @@ class StreamClips(commands.Cog):
         """List all active clip alerts in this server."""
         streams_list = defaultdict(list)
         guild_channels_ids = [c.id for c in ctx.guild.channels]
-        msg = _("Active alerts:\n\n")
+        msg = ("Active alerts:\n\n")
 
         for stream in self.streams:
             for channel_id in stream.channels:
