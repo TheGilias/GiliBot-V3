@@ -367,54 +367,52 @@ class StreamClips(commands.Cog):
 
     @commands.command()
     async def check_clips(self):
-        log.info("Testing info level debugging")
-
         for stream in self.streams:
-            with contextlib.suppress(Exception):
-                if stream.__class__.__name__ == "TwitchStream":
-                    await self.maybe_renew_twitch_bearer_token()
-                    embeds  = await stream.get_clips()
-                else:
-                    embeds = await stream.get_clips()
-                await self.save_streams()
+            #with contextlib.suppress(Exception):
+            if stream.__class__.__name__ == "TwitchStream":
+                await self.maybe_renew_twitch_bearer_token()
+                embeds  = await stream.get_clips()
+            else:
+                embeds = await stream.get_clips()
+            await self.save_streams()
+            
+            for channel_id in stream.channels:
+                channel = self.bot.get_channel(channel_id)
+                if not channel:
+                    continue
+                mention_str, edited_roles = await self._get_mention_str(channel.guild)
                 
-                for channel_id in stream.channels:
-                    channel = self.bot.get_channel(channel_id)
-                    if not channel:
-                        continue
-                    mention_str, edited_roles = await self._get_mention_str(channel.guild)
-                    
-                    if mention_str:
-                        alert_msg = await self.config.guild(
-                            channel.guild
-                        ).live_message_mention()
-                        if alert_msg:
-                            content = alert_msg.format(mention=mention_str, stream=stream)
-                        else:
-                            content = ("{mention}, {stream} has a new clip!").format(
-                                mention=mention_str,
-                                stream=escape(
-                                    str(stream.name), mass_mentions=True, formatting=True
-                                ),
-                            )
+                if mention_str:
+                    alert_msg = await self.config.guild(
+                        channel.guild
+                    ).live_message_mention()
+                    if alert_msg:
+                        content = alert_msg.format(mention=mention_str, stream=stream)
                     else:
-                        alert_msg = await self.config.guild(
-                            channel.guild
-                        ).live_message_nomention()
-                        if alert_msg:
-                            content = alert_msg.format(stream=stream)
-                        else:
-                            content = ("{stream} has a new clip!").format(
-                                stream=escape(
-                                    str(stream.name), mass_mentions=True, formatting=True
-                                )
+                        content = ("{mention}, {stream} has a new clip!").format(
+                            mention=mention_str,
+                            stream=escape(
+                                str(stream.name), mass_mentions=True, formatting=True
+                            ),
+                        )
+                else:
+                    alert_msg = await self.config.guild(
+                        channel.guild
+                    ).live_message_nomention()
+                    if alert_msg:
+                        content = alert_msg.format(stream=stream)
+                    else:
+                        content = ("{stream} has a new clip!").format(
+                            stream=escape(
+                                str(stream.name), mass_mentions=True, formatting=True
                             )
+                        )
 
-                    m = await channel.send(content, embed=embeds)
-                    if edited_roles:
-                        for role in edited_roles:
-                            await role.edit(mentionable=False)
-                    await self.save_streams()
+                m = await channel.send(content, embed=embeds)
+                if edited_roles:
+                    for role in edited_roles:
+                        await role.edit(mentionable=False)
+                await self.save_streams()
 
     async def _get_mention_str(self, guild: discord.Guild) -> Tuple[str, List[discord.Role]]:
         """Returns a 2-tuple with the string containing the mentions, and a list of
