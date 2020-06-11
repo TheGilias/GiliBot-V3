@@ -348,34 +348,19 @@ class StreamClips(commands.Cog):
             await asyncio.sleep(await self.config.refresh_timer())
 
     async def check_clips(self):
-        """for stream in self.streams:
+        for stream in self.streams:
             with contextlib.suppress(Exception):
                 try:
                     if stream.__class__.__name__ == "TwitchStream":
                         await self.maybe_renew_twitch_bearer_token()
-                        embed, is_rerun = await stream.is_online()
+                        embeds  = await stream.get_clips()
                     else:
-                        embed = await stream.is_online()
-                        is_rerun = False
-                except OfflineStream:
-                    if not stream._messages_cache:
-                        continue
-                    for message in stream._messages_cache:
-                        with contextlib.suppress(Exception):
-                            autodelete = await self.config.guild(message.guild).autodelete()
-                            if autodelete:
-                                await message.delete()
-                    stream._messages_cache.clear()
+                        embeds = await stream.get_clips()
                     await self.save_streams()
                 else:
-                    if stream._messages_cache:
-                        continue
                     for channel_id in stream.channels:
                         channel = self.bot.get_channel(channel_id)
                         if not channel:
-                            continue
-                        ignore_reruns = await self.config.guild(channel.guild).ignore_reruns()
-                        if ignore_reruns and is_rerun:
                             continue
                         mention_str, edited_roles = await self._get_mention_str(channel.guild)
 
@@ -386,7 +371,7 @@ class StreamClips(commands.Cog):
                             if alert_msg:
                                 content = alert_msg.format(mention=mention_str, stream=stream)
                             else:
-                                content = ("{mention}, {stream} is live!").format(
+                                content = ("{mention}, {stream} has a new clip!").format(
                                     mention=mention_str,
                                     stream=escape(
                                         str(stream.name), mass_mentions=True, formatting=True
@@ -399,18 +384,18 @@ class StreamClips(commands.Cog):
                             if alert_msg:
                                 content = alert_msg.format(stream=stream)
                             else:
-                                content = ("{stream} is live!").format(
+                                content = ("{stream} has a new clip!").format(
                                     stream=escape(
                                         str(stream.name), mass_mentions=True, formatting=True
                                     )
                                 )
 
-                        m = await channel.send(content, embed=embed)
+                        m = await channel.send(content, embed=embeds)
                         stream._messages_cache.append(m)
                         if edited_roles:
                             for role in edited_roles:
                                 await role.edit(mentionable=False)
-                        await self.save_streams()"""
+                        await self.save_streams()
 
     async def _get_mention_str(self, guild: discord.Guild) -> Tuple[str, List[discord.Role]]:
         """Returns a 2-tuple with the string containing the mentions, and a list of
