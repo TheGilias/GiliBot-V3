@@ -373,12 +373,12 @@ class MixerStream(Stream):
 
         log.debug(f"Obtaining clip list from URL {url}")
 
-        """async with aiohttp.ClientSession() as session:
+        async with aiohttp.ClientSession() as session:
             async with session.get(url) as r:
                 data = await r.text(encoding="utf-8")
         if r.status == 200:
             data = json.loads(data, strict=False)
-            log.info (f"{len(data)} clips found")
+            #log.info (f"{len(data)} clips found")
             #for currentitem in data.items():
             #    clip_embeds += self.make_clip_embeds(currentitem)
             
@@ -386,7 +386,7 @@ class MixerStream(Stream):
         elif r.status == 404:
             raise StreamNotFound()
         else:
-            raise APIError()"""
+            raise APIError()
 
     async def is_online(self):
         url = "https://mixer.com/api/v1/channels/" + self.name
