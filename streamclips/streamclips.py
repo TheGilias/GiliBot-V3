@@ -373,11 +373,11 @@ class StreamClips(commands.Cog):
             log.info("Checking for new " + stream.__class__.__name__ + " clips from " + stream.name)
 
             #with contextlib.suppress(Exception):
-            #if stream.__class__.__name__ == "TwitchStream":
-            #    await self.maybe_renew_twitch_bearer_token()
-            #    embeds = await stream.get_clips()
-            #else:
-            #    embeds = await stream.get_clips()
+            if stream.__class__.__name__ == "TwitchStream":
+                await self.maybe_renew_twitch_bearer_token()
+                embeds = await stream.get_clips()
+            else:
+                embeds = await stream.get_clips()
             log.info ("clips found")
             await self.save_streams()
             
