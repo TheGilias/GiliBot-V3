@@ -377,7 +377,7 @@ class MixerStream(Stream):
 
         with aiohttp.ClientSession() as session:
             with session.get(url) as r:
-                data = await r.text(encoding="utf-8")
+                data = r.text(encoding="utf-8")
         if r.status == 200:
             data = json.loads(data, strict=False)
             log.info (len(data) + "clips found")
