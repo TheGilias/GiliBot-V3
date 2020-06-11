@@ -351,6 +351,7 @@ class StreamClips(commands.Cog):
     @commands.guild_only()
     @checks.mod()
     async def check_clips(self):
+        channel.send("Checking Clips")
         for stream in self.streams:
             with contextlib.suppress(Exception):
                 if stream.__class__.__name__ == "TwitchStream":
@@ -393,7 +394,6 @@ class StreamClips(commands.Cog):
                             )
 
                     m = await channel.send(content, embed=embeds)
-                    stream._messages_cache.append(m)
                     if edited_roles:
                         for role in edited_roles:
                             await role.edit(mentionable=False)
