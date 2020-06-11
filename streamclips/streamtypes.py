@@ -56,7 +56,7 @@ class Stream:
         self.name = kwargs.pop("name", None)
         self.channels = kwargs.pop("channels", [])
         # self.already_online = kwargs.pop("already_online", False)
-        self.last_checked = kwargs.pop("lastchecked", datetime.utcnow())
+        self.last_checked = kwargs.pop("lastchecked", datetime.utcnow().isoformat())
         self.type = self.__class__.__name__
 
     async def is_online(self):
