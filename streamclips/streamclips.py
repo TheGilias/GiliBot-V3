@@ -301,7 +301,7 @@ class StreamClips(commands.Cog):
 
         await self.config.refresh_timer.set(refresh_time)
         await ctx.send(
-            _("Refresh timer set to {refresh_time} seconds".format(refresh_time=refresh_time))
+            ("Refresh timer set to {refresh_time} seconds".format(refresh_time=refresh_time))
         )
 
     async def add_or_remove(self, ctx: commands.Context, stream):
