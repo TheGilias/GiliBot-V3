@@ -365,7 +365,7 @@ class MixerStream(Stream):
     token_name = None  # This streaming services don't currently require an API key
 
     def get_clips(self):
-        channel_id = self.get_channel_id(self.name)
+        #channel_id = self.get_channel_id(self.name)
         #url = "https://mixer.com/api/v1/clips/channels/" + channel_id
         url = "https://mixer.com/api/v1/clips/channels/51623"
         clip_embeds = []
