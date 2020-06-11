@@ -59,10 +59,16 @@ class Stream:
         self.last_checked = kwargs.pop("lastchecked", datetime.utcnow().isoformat())
         self.type = self.__class__.__name__
 
+    async def get_clips(self):
+        raise NotImplementedError()
+
     async def is_online(self):
         raise NotImplementedError()
 
     def make_embed(self):
+        raise NotImplementedError()
+
+    def make_clip_embeds(self):
         raise NotImplementedError()
 
     def export(self):
