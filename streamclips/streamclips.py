@@ -367,6 +367,8 @@ class StreamClips(commands.Cog):
 
     @commands.command()
     async def check_clips(self):
+        log.error("Testing")
+
         for stream in self.streams:
             with contextlib.suppress(Exception):
                 if stream.__class__.__name__ == "TwitchStream":
@@ -381,8 +383,7 @@ class StreamClips(commands.Cog):
                     if not channel:
                         continue
                     mention_str, edited_roles = await self._get_mention_str(channel.guild)
-                    log.error("Testing")
-
+                    
                     if mention_str:
                         alert_msg = await self.config.guild(
                             channel.guild
