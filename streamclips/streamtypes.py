@@ -375,8 +375,8 @@ class MixerStream(Stream):
 
         log.info(f"Obtaining clip list from URL {url}")
 
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url) as r:
+        with aiohttp.ClientSession() as session:
+            with session.get(url) as r:
                 data = await r.text(encoding="utf-8")
         if r.status == 200:
             data = json.loads(data, strict=False)
