@@ -367,7 +367,7 @@ class StreamClips(commands.Cog):
 
     @commands.command()
     async def check_clips(self):
-        log.error("Testing")
+        log.info("Testing info level debugging")
 
         for stream in self.streams:
             with contextlib.suppress(Exception):
