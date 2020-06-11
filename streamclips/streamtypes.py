@@ -376,13 +376,12 @@ class MixerStream(Stream):
             async with session.get(url) as r:
                 data = await r.text(encoding="utf-8")
         if r.status == 200:
-            log.info ("Hi.")
-            #data = json.loads(data, strict=False)
-            #log.info (f"{len(data)} clips found")
-            #for currentitem in data.items():
-            #    clip_embeds += self.make_clip_embeds(currentitem)
+            data = json.loads(data, strict=False)
+            log.info (f"{len(data)} clips found")
+            for currentitem in data.items():
+                clip_embeds += self.make_clip_embeds(currentitem)
             
-            #return clip_embeds
+            return clip_embeds
         elif r.status == 404:
             raise StreamNotFound()
         else:
