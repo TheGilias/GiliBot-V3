@@ -15,7 +15,7 @@ from .errors import (
     InvalidYoutubeCredentials,
     StreamNotFound,
 )
-from redbot.core.i18n import Translator
+from datetime import datetime
 from redbot.core.utils.chat_formatting import humanize_number
 
 TWITCH_BASE_URL = "https://api.twitch.tv"
@@ -28,6 +28,9 @@ YOUTUBE_CHANNELS_ENDPOINT = YOUTUBE_BASE_URL + "/channels"
 YOUTUBE_SEARCH_ENDPOINT = YOUTUBE_BASE_URL + "/search"
 YOUTUBE_VIDEOS_ENDPOINT = YOUTUBE_BASE_URL + "/videos"
 YOUTUBE_CHANNEL_RSS = "https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}"
+
+MIXER_BASE_URL = "https://mixer.com/api/v1"
+MIXER_CLIPS_ENDPOINT = MIXER_BASE_URL + "/clips/channels/{channel_id}"
 
 _ = Translator("Streams", __file__)
 
@@ -55,7 +58,7 @@ class Stream:
         self.name = kwargs.pop("name", None)
         self.channels = kwargs.pop("channels", [])
         # self.already_online = kwargs.pop("already_online", False)
-        self._messages_cache = kwargs.pop("_messages_cache", [])
+        self.last_checked = kwargs.pop("lastchecked", datetime.utcnow())
         self.type = self.__class__.__name__
 
     async def is_online(self):
@@ -69,9 +72,6 @@ class Stream:
         for k, v in self.__dict__.items():
             if not k.startswith("_"):
                 data[k] = v
-        data["messages"] = []
-        for m in self._messages_cache:
-            data["messages"].append({"channel": m.channel.id, "message": m.id})
         return data
 
     def __repr__(self):

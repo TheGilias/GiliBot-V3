@@ -455,17 +455,6 @@ class StreamClips(commands.Cog):
             _class = getattr(_streamtypes, raw_stream["type"], None)
             if not _class:
                 continue
-            raw_msg_cache = raw_stream["messages"]
-            raw_stream["_messages_cache"] = []
-            for raw_msg in raw_msg_cache:
-                chn = self.bot.get_channel(raw_msg["channel"])
-                if chn is not None:
-                    try:
-                        msg = await chn.fetch_message(raw_msg["message"])
-                    except discord.HTTPException:
-                        pass
-                    else:
-                        raw_stream["_messages_cache"].append(msg)
             token = await self.bot.get_shared_api_tokens(_class.token_name)
             if token:
                 if _class.__name__ == "TwitchStream":
