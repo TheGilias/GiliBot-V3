@@ -361,6 +361,24 @@ class MixerStream(Stream):
 
     token_name = None  # This streaming services don't currently require an API key
 
+    async def get_clips(self):
+        url = MIXER_CLIPS_ENDPOINT.format(channel_id = self.name)
+        clip_embeds = []
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as r:
+                data = await r.text(encoding="utf-8")
+        if r.status == 200:
+            data = json.loads(data, strict=False)
+            for currentitem in data.items():
+                clip_embeds += self.make_clip_embeds(currentitem)
+            
+            return clip_embeds
+        elif r.status == 404:
+            raise StreamNotFound()
+        else:
+            raise APIError()
+
     async def is_online(self):
         url = "https://mixer.com/api/v1/channels/" + self.name
 
@@ -399,7 +417,20 @@ class MixerStream(Stream):
             embed.set_footer(text=("Playing: ") + data["type"]["name"])
         return embed
 
-
+    def make_clip_embeds(self, data):
+        default_avatar = "https://mixer.com/_latest/assets/images/main/avatars/default.jpg"
+        user = data["user"]
+        url = "https://mixer.com/" + data["token"]
+        embed = discord.Embed(title=data["title"], url=url)
+        embed.set_author(name=user["username"])
+        if user["avatarUrl"]:
+            embed.set_thumbnail(url=user["avatarUrl"])
+        else:
+            embed.set_thumbnail(url=default_avatar)
+        if data["thumbnail"]:
+            embed.set_image(url=rnd(data["thumbnail"]["uri"]))
+        embed.color = 0x4C90F3  # pylint: disable=assigning-non-slot
+        
 class PicartoStream(Stream):
 
     token_name = None  # This streaming services don't currently require an API key
