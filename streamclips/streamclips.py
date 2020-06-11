@@ -378,7 +378,7 @@ class StreamClips(commands.Cog):
                 embeds = await stream.get_clips()
             else:
                 embeds = await stream.get_clips()
-            log.info ("clips found")
+            log.info (f"{len(embeds)} clips found")
             await self.save_streams()
             
             for channel_id in stream.channels:

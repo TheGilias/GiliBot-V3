@@ -373,7 +373,7 @@ class MixerStream(Stream):
         url = MIXER_CLIPS_ENDPOINT.format(channel_id = self.name)
         clip_embeds = []
 
-        log.info("Obtaining clip list from URL: " + url)
+        log.info(f"Obtaining clip list from URL {url}")
 
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as r:
