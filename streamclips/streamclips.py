@@ -286,6 +286,24 @@ class StreamClips(commands.Cog):
 
         await self.add_or_remove(ctx, stream)
 
+    @commands.group()
+    @checks.mod()
+    async def clipset(self, ctx: commands.Context):
+        """Set tokens and refresh settings."""
+        pass
+
+    @clipset.command(name="timer")
+    @checks.is_owner()
+    async def _clipset_refresh_timer(self, ctx: commands.Context, refresh_time: int):
+        """Set clip check refresh time."""
+        if refresh_time < 60:
+            return await ctx.send(_("You cannot set the refresh timer to less than 60 seconds"))
+
+        await self.config.refresh_timer.set(refresh_time)
+        await ctx.send(
+            _("Refresh timer set to {refresh_time} seconds".format(refresh_time=refresh_time))
+        )
+
     async def add_or_remove(self, ctx: commands.Context, stream):
         if ctx.channel.id not in stream.channels:
             stream.channels.append(ctx.channel.id)
@@ -347,6 +365,7 @@ class StreamClips(commands.Cog):
                 pass
             await asyncio.sleep(await self.config.refresh_timer())
 
+    @commands.command()
     async def check_clips(self):
         for stream in self.streams:
             with contextlib.suppress(Exception):
