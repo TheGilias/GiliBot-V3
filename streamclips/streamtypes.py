@@ -32,7 +32,7 @@ YOUTUBE_CHANNEL_RSS = "https://www.youtube.com/feeds/videos.xml?channel_id={chan
 MIXER_BASE_URL = "https://mixer.com/api/v1"
 MIXER_CLIPS_ENDPOINT = MIXER_BASE_URL + "/clips/channels/{channel_id}"
 
-log = logging.getLogger("redbot.cogs.Streams")
+log = logging.getLogger("redbot.GiliBot-V3.StreamClips")
 
 
 def rnd(url):
@@ -365,11 +365,14 @@ class MixerStream(Stream):
         url = MIXER_CLIPS_ENDPOINT.format(channel_id = self.name)
         clip_embeds = []
 
+        log.info("Obtaining clip list from " + url)
+
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as r:
                 data = await r.text(encoding="utf-8")
         if r.status == 200:
             data = json.loads(data, strict=False)
+            log.info (len(data) + "clips found")
             for currentitem in data.items():
                 clip_embeds += self.make_clip_embeds(currentitem)
             
