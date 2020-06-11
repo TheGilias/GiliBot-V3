@@ -178,6 +178,67 @@ class StreamClips(commands.Cog):
         """Toggle alerts in this channel for a Mixer channel's clips."""
         await self.stream_clip_alert(ctx, MixerStream, channel_name)
 
+    @clipalert.command(name="stop", usage="[disable_all=No]")
+    async def clipalert_stop(self, ctx: commands.Context, _all: bool = False):
+        """Disable all stream clip alerts in this channel or server.
+
+        `[p]clipalert stop` will disable this channel's stream
+        clip alerts.
+
+        Do `[p]clipalert stop yes` to disable all stream clip alerts 
+        in this server.
+        """
+        streams = self.streams.copy()
+        local_channel_ids = [c.id for c in ctx.guild.channels]
+        to_remove = []
+
+        for stream in streams:
+            for channel_id in stream.channels:
+                if channel_id == ctx.channel.id:
+                    stream.channels.remove(channel_id)
+                elif _all and ctx.channel.id in local_channel_ids:
+                    if channel_id in stream.channels:
+                        stream.channels.remove(channel_id)
+
+            if not stream.channels:
+                to_remove.append(stream)
+
+        for stream in to_remove:
+            streams.remove(stream)
+
+        self.streams = streams
+        await self.save_streams()
+
+        if _all:
+            msg = ("All the clip alerts in this server have been disabled.")
+        else:
+            msg = ("All the clip alerts in this channel have been disabled.")
+
+        await ctx.send(msg)
+
+    @clipalert.command(name="list")
+    async def clipalert_list(self, ctx: commands.Context):
+        """List all active clip alerts in this server."""
+        streams_list = defaultdict(list)
+        guild_channels_ids = [c.id for c in ctx.guild.channels]
+        msg = _("Active alerts:\n\n")
+
+        for stream in self.streams:
+            for channel_id in stream.channels:
+                if channel_id in guild_channels_ids:
+                    streams_list[channel_id].append(stream.name.lower())
+
+        if not streams_list:
+            await ctx.send(("There are no active alerts in this server."))
+            return
+
+        for channel_id, streams in streams_list.items():
+            channel = ctx.guild.get_channel(channel_id)
+            msg += "** - #{}**\n{}\n".format(channel, ", ".join(streams))
+
+        for page in pagify(msg):
+            await ctx.send(page)
+
     async def stream_clip_alert(self, ctx: commands.Context, _class, channel_name):
         stream = self.get_stream(_class, channel_name)
         if not stream:
