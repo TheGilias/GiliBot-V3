@@ -365,7 +365,6 @@ class StreamClips(commands.Cog):
                 pass
             await asyncio.sleep(await self.config.refresh_timer())
 
-    @commands.command()
     async def check_clips(self):
         log.info("Checking streamers for clips")
 
