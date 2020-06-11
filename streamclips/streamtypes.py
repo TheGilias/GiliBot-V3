@@ -365,7 +365,8 @@ class MixerStream(Stream):
     token_name = None  # This streaming services don't currently require an API key
 
     async def get_clips(self):
-        url = "https://mixer.com/api/v1/clips/channels/" + self.name
+        channel_id = await self.get_channel_id(self.name)
+        url = "https://mixer.com/api/v1/clips/channels/" + channel_id
         clip_embeds = []
 
         log.debug("Obtaining clip list from URL" + url)
@@ -437,6 +438,20 @@ class MixerStream(Stream):
         if data["thumbnail"]:
             embed.set_image(url=rnd(data["thumbnail"]["uri"]))
         embed.color = 0x4C90F3  # pylint: disable=assigning-non-slot
+
+    def get_channel_id(self, channel_name):
+        url = "https://mixer.com/api/v1/channels/" + self.name
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as r:
+                data = await r.text(encoding="utf-8")
+        if r.status == 200:
+            data = json.loads(data, strict=False)
+            return data["id"]
+        elif r.status == 404:
+            raise StreamNotFound()
+        else:
+            raise APIError()
         
 class PicartoStream(Stream):
 
