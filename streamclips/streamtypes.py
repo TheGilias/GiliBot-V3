@@ -365,7 +365,7 @@ class MixerStream(Stream):
     token_name = None  # This streaming services don't currently require an API key
 
     def get_clips(self):
-        channel_id = self.get_channel_id(self.name)
+        channel_id = self.get_channel_id()
         url = "https://mixer.com/api/v1/clips/channels/" + channel_id
         #url = "https://mixer.com/api/v1/clips/channels/51623"
         clip_embeds = []
@@ -441,7 +441,7 @@ class MixerStream(Stream):
             embed.set_image(url=rnd(data["thumbnail"]["uri"]))
         embed.color = 0x4C90F3  # pylint: disable=assigning-non-slot
 
-    def get_channel_id(self, channel_name):
+    def get_channel_id(self):
         url = "https://mixer.com/api/v1/channels/" + self.name
 
         with aiohttp.ClientSession() as session:
