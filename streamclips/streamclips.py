@@ -347,11 +347,7 @@ class StreamClips(commands.Cog):
                 pass
             await asyncio.sleep(await self.config.refresh_timer())
 
-    @commands.group()
-    @commands.guild_only()
-    @checks.mod()
     async def check_clips(self):
-        channel.send("Checking Clips")
         for stream in self.streams:
             with contextlib.suppress(Exception):
                 if stream.__class__.__name__ == "TwitchStream":
@@ -366,6 +362,7 @@ class StreamClips(commands.Cog):
                     if not channel:
                         continue
                     mention_str, edited_roles = await self._get_mention_str(channel.guild)
+                    channel.send("Checking a streamer for clips.")
 
                     if mention_str:
                         alert_msg = await self.config.guild(
