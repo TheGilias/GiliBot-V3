@@ -30,7 +30,7 @@ from datetime import datetime
 from collections import defaultdict
 from typing import Optional, List, Tuple, Union
 
-log = logging.getLogger("red.core.cogs.StreamClips")
+log = logging.getLogger("red.GiliBot-V3.StreamClips")
 
 class StreamClips(commands.Cog):
     """This cog is designed to put alerts in a text channel when new clips from specified streamers are detected."""
