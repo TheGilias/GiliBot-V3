@@ -32,8 +32,6 @@ YOUTUBE_CHANNEL_RSS = "https://www.youtube.com/feeds/videos.xml?channel_id={chan
 MIXER_BASE_URL = "https://mixer.com/api/v1"
 MIXER_CLIPS_ENDPOINT = MIXER_BASE_URL + "/clips/channels/{channel_id}"
 
-_ = Translator("Streams", __file__)
-
 log = logging.getLogger("redbot.cogs.Streams")
 
 
@@ -302,18 +300,18 @@ class TwitchStream(Stream):
             logo = "https://static-cdn.jtvnw.net/jtv_user_pictures/xarth/404_user_70x70.png"
         status = data["title"]
         if not status:
-            status = _("Untitled broadcast")
+            status = ("Untitled broadcast")
         if is_rerun:
-            status += _(" - Rerun")
+            status += (" - Rerun")
         embed = discord.Embed(title=status, url=url, color=0x6441A4)
         embed.set_author(name=data["user_name"])
-        embed.add_field(name=_("Followers"), value=humanize_number(data["followers"]))
-        embed.add_field(name=_("Total views"), value=humanize_number(data["view_count"]))
+        embed.add_field(name=("Followers"), value=humanize_number(data["followers"]))
+        embed.add_field(name=("Total views"), value=humanize_number(data["view_count"]))
         embed.set_thumbnail(url=logo)
         if data["thumbnail_url"]:
             embed.set_image(url=rnd(data["thumbnail_url"].format(width=320, height=180)))
         if data["game_name"]:
-            embed.set_footer(text=_("Playing: ") + data["game_name"])
+            embed.set_footer(text=("Playing: ") + data["game_name"])
         return embed
 
     def __repr__(self):
@@ -350,11 +348,11 @@ class HitboxStream(Stream):
         url = channel["channel_link"]
         embed = discord.Embed(title=livestream["media_status"], url=url, color=0x98CB00)
         embed.set_author(name=livestream["media_name"])
-        embed.add_field(name=_("Followers"), value=humanize_number(channel["followers"]))
+        embed.add_field(name=("Followers"), value=humanize_number(channel["followers"]))
         embed.set_thumbnail(url=base_url + channel["user_logo"])
         if livestream["media_thumbnail"]:
             embed.set_image(url=rnd(base_url + livestream["media_thumbnail"]))
-        embed.set_footer(text=_("Playing: ") + livestream["category_name"])
+        embed.set_footer(text=("Playing: ") + livestream["category_name"])
 
         return embed
 
@@ -388,8 +386,8 @@ class MixerStream(Stream):
         url = "https://mixer.com/" + data["token"]
         embed = discord.Embed(title=data["name"], url=url)
         embed.set_author(name=user["username"])
-        embed.add_field(name=_("Followers"), value=humanize_number(data["numFollowers"]))
-        embed.add_field(name=_("Total views"), value=humanize_number(data["viewersTotal"]))
+        embed.add_field(name=("Followers"), value=humanize_number(data["numFollowers"]))
+        embed.add_field(name=("Total views"), value=humanize_number(data["viewersTotal"]))
         if user["avatarUrl"]:
             embed.set_thumbnail(url=user["avatarUrl"])
         else:
@@ -398,7 +396,7 @@ class MixerStream(Stream):
             embed.set_image(url=rnd(data["thumbnail"]["url"]))
         embed.color = 0x4C90F3  # pylint: disable=assigning-non-slot
         if data["type"] is not None:
-            embed.set_footer(text=_("Playing: ") + data["type"]["name"])
+            embed.set_footer(text=("Playing: ") + data["type"]["name"])
         return embed
 
 
@@ -434,18 +432,18 @@ class PicartoStream(Stream):
         embed = discord.Embed(title=data["title"], url=url, color=0x4C90F3)
         embed.set_author(name=data["name"])
         embed.set_image(url=rnd(thumbnail))
-        embed.add_field(name=_("Followers"), value=humanize_number(data["followers"]))
-        embed.add_field(name=_("Total views"), value=humanize_number(data["viewers_total"]))
+        embed.add_field(name=("Followers"), value=humanize_number(data["followers"]))
+        embed.add_field(name=("Total views"), value=humanize_number(data["viewers_total"]))
         embed.set_thumbnail(url=avatar)
         data["tags"] = ", ".join(data["tags"])
 
         if not data["tags"]:
-            data["tags"] = _("None")
+            data["tags"] = ("None")
 
         if data["adult"]:
-            data["adult"] = _("NSFW | ")
+            data["adult"] = ("NSFW | ")
         else:
             data["adult"] = ""
 
-        embed.set_footer(text=_("{adult}Category: {category} | Tags: {tags}").format(**data))
+        embed.set_footer(text=("{adult}Category: {category} | Tags: {tags}").format(**data))
         return embed
