@@ -82,7 +82,7 @@ class StreamClips(commands.Cog):
             self.streams = await self.load_streams()
             self.task = self.bot.loop.create_task(self._stream_alerts())
         except Exception as error:
-            log.exception("Failed to initialize Streams cog:", exc_info=error)
+            log.exception("Failed to initialize StreamClips cog:", exc_info=error)
 
         self._ready_event.set()
 
@@ -166,8 +166,15 @@ class StreamClips(commands.Cog):
             if self.ttv_bearer_cache["expires_at"] - datetime.now().timestamp() <= 60:
                 await self.get_twitch_bearer_token()
 
-    @commands.command()
-    async def streamclips(self, ctx):
-        """This does stuff!"""
-        # Your code will go here
-        await ctx.send("I can do stuff 3!")
+    @commands.group()
+    @commands.guild_only()
+    @checks.mod()
+    async def clipalert(self, ctx: commands.Context):
+        """Manage automated stream clip alerts."""
+        pass
+
+    def cog_unload(self):
+        if self.task:
+            self.task.cancel()
+
+    __del__ = cog_unload
