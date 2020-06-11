@@ -374,6 +374,7 @@ class MixerStream(Stream):
             async with session.get(url) as r:
                 data = await r.text(encoding="utf-8")
         if r.status == 200:
+            log.info ("Hi.")
             #data = json.loads(data, strict=False)
             #log.info (f"{len(data)} clips found")
             #for currentitem in data.items():
