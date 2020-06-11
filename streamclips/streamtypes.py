@@ -29,9 +29,6 @@ YOUTUBE_SEARCH_ENDPOINT = YOUTUBE_BASE_URL + "/search"
 YOUTUBE_VIDEOS_ENDPOINT = YOUTUBE_BASE_URL + "/videos"
 YOUTUBE_CHANNEL_RSS = "https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}"
 
-MIXER_BASE_URL = "https://mixer.com/api/v1"
-MIXER_CLIPS_ENDPOINT = MIXER_BASE_URL + "/clips/channels"
-
 log = logging.getLogger("redbot.GiliBot-V3.StreamClips")
 
 
@@ -368,7 +365,7 @@ class MixerStream(Stream):
     token_name = None  # This streaming services don't currently require an API key
 
     async def get_clips(self):
-        url = MIXER_CLIPS_ENDPOINT + "/" + self.name
+        url = "https://mixer.com/api/v1/clips/channels/" + self.name
         clip_embeds = []
 
         log.debug("Obtaining clip list from URL" + url)
