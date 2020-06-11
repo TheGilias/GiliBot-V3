@@ -374,7 +374,7 @@ class MixerStream(Stream):
 
         return clip_embeds
         
-        """with aiohttp.ClientSession() as session:
+        with aiohttp.ClientSession() as session:
             with session.get(url) as r:
                 data = r.text(encoding="utf-8")
         if r.status == 200:
@@ -388,7 +388,7 @@ class MixerStream(Stream):
         elif r.status == 404:
             raise StreamNotFound()
         else:
-            raise APIError()"""
+            raise APIError()
 
     async def is_online(self):
         url = "https://mixer.com/api/v1/channels/" + self.name
