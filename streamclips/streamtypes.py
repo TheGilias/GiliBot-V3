@@ -380,7 +380,7 @@ class MixerStream(Stream):
                 data = await r.text(encoding="utf-8")
         if r.status == 200:
             data = json.loads(data, strict=False)
-            log.info (len(data) + "clips found")
+            log.info (f"{len(data)} clips found")
             #for currentitem in data.items():
             #    clip_embeds += self.make_clip_embeds(currentitem)
             
