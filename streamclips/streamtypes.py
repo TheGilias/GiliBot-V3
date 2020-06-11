@@ -378,10 +378,10 @@ class MixerStream(Stream):
         if r.status == 200:
             data = json.loads(data, strict=False)
             log.info (f"{len(data)} clips found")
-            for currentitem in data.items():
-                clip_embeds += self.make_clip_embeds(currentitem)
+            #for currentitem in data.items():
+            #    clip_embeds += self.make_clip_embeds(currentitem)
             
-            return clip_embeds
+            #return clip_embeds
         elif r.status == 404:
             raise StreamNotFound()
         else:
