@@ -371,7 +371,7 @@ class MixerStream(Stream):
         url = MIXER_CLIPS_ENDPOINT + "/" + self.name
         clip_embeds = []
 
-        log.debug(f"Obtaining clip list from URL {url}")
+        log.debug("Obtaining clip list from URL" + url)
 
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as r:
