@@ -108,7 +108,7 @@ class StreamClips(commands.Cog):
             try:
                 tokens["client_secret"]
             except KeyError:
-                message = _(
+                message = (
                     "You need a client secret key to use correctly Twitch API on this cog.\n"
                     "Follow these steps:\n"
                     "1. Go to this page: https://dev.twitch.tv/console/apps.\n"
@@ -199,7 +199,7 @@ class StreamClips(commands.Cog):
                 exists = await self.check_exists(stream)
             except InvalidTwitchCredentials:
                 await ctx.send(
-                    _(
+                    (
                         "The Twitch token is either invalid or has not been set. See "
                         "`{prefix}clipset twitchtoken`."
                     ).format(prefix=ctx.clean_prefix)
@@ -207,7 +207,7 @@ class StreamClips(commands.Cog):
                 return
             except InvalidYoutubeCredentials:
                 await ctx.send(
-                    _(
+                    (
                         "The YouTube API key is either invalid or has not been set. See "
                         "`{prefix}clipset youtubekey`."
                     ).format(prefix=ctx.clean_prefix)
@@ -215,12 +215,12 @@ class StreamClips(commands.Cog):
                 return
             except APIError:
                 await ctx.send(
-                    _("Something went wrong whilst trying to contact the stream service's API.")
+                    ("Something went wrong whilst trying to contact the stream service's API.")
                 )
                 return
             else:
                 if not exists:
-                    await ctx.send(_("That channel doesn't seem to exist."))
+                    await ctx.send(("That channel doesn't seem to exist."))
                     return
 
         await self.add_or_remove(ctx, stream)
@@ -231,7 +231,7 @@ class StreamClips(commands.Cog):
             if stream not in self.streams:
                 self.streams.append(stream)
             await ctx.send(
-                _(
+                (
                     "I'll now send a notification in this channel when {stream.name} has new clips."
                 ).format(stream=stream)
             )
@@ -240,7 +240,7 @@ class StreamClips(commands.Cog):
             if not stream.channels:
                 self.streams.remove(stream)
             await ctx.send(
-                _(
+                (
                     "I won't send notifications about {stream.name} clips in this channel anymore."
                 ).format(stream=stream)
             )
@@ -325,7 +325,7 @@ class StreamClips(commands.Cog):
                             if alert_msg:
                                 content = alert_msg.format(mention=mention_str, stream=stream)
                             else:
-                                content = _("{mention}, {stream} is live!").format(
+                                content = ("{mention}, {stream} is live!").format(
                                     mention=mention_str,
                                     stream=escape(
                                         str(stream.name), mass_mentions=True, formatting=True
@@ -338,7 +338,7 @@ class StreamClips(commands.Cog):
                             if alert_msg:
                                 content = alert_msg.format(stream=stream)
                             else:
-                                content = _("{stream} is live!").format(
+                                content = ("{stream} is live!").format(
                                     stream=escape(
                                         str(stream.name), mass_mentions=True, formatting=True
                                     )
