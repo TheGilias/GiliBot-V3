@@ -367,7 +367,11 @@ class StreamClips(commands.Cog):
 
     @commands.command()
     async def check_clips(self):
+        log.info("Checking streamers for clips")
+
         for stream in self.streams:
+            log.info("Checking for new clips from " + stream.name)
+
             #with contextlib.suppress(Exception):
             if stream.__class__.__name__ == "TwitchStream":
                 await self.maybe_renew_twitch_bearer_token()
