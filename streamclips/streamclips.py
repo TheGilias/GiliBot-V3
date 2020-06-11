@@ -347,6 +347,9 @@ class StreamClips(commands.Cog):
                 pass
             await asyncio.sleep(await self.config.refresh_timer())
 
+    @commands.group()
+    @commands.guild_only()
+    @checks.mod()
     async def check_clips(self):
         for stream in self.streams:
             with contextlib.suppress(Exception):
