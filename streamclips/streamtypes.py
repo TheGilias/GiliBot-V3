@@ -439,7 +439,7 @@ class MixerStream(Stream):
             embed.set_image(url=rnd(data["thumbnail"]["uri"]))
         embed.color = 0x4C90F3  # pylint: disable=assigning-non-slot
 
-    def get_channel_id(self, channel_name):
+    async def get_channel_id(self, channel_name):
         url = "https://mixer.com/api/v1/channels/" + self.name
 
         async with aiohttp.ClientSession() as session:
