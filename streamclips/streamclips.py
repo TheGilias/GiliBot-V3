@@ -349,6 +349,8 @@ class StreamClips(commands.Cog):
     async def check_exists(stream):
         try:
             await stream.is_online()
+        except OfflineStream:
+            pass
         except StreamNotFound:
             return False
         except StreamsError:
