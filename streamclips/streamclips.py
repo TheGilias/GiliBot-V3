@@ -381,7 +381,7 @@ class StreamClips(commands.Cog):
                     if not channel:
                         continue
                     mention_str, edited_roles = await self._get_mention_str(channel.guild)
-                    channel.send("Checking a streamer for clips.")
+                    log.error("Testing")
 
                     if mention_str:
                         alert_msg = await self.config.guild(
