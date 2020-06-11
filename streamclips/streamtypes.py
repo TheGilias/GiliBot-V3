@@ -366,10 +366,11 @@ class MixerStream(Stream):
 
     def get_clips(self):
         channel_id = self.get_channel_id(self.name)
-        url = "https://mixer.com/api/v1/clips/channels/" + channel_id
+        #url = "https://mixer.com/api/v1/clips/channels/" + channel_id
+        url = "https://mixer.com/api/v1/clips/channels/51623"
         clip_embeds = []
 
-        log.debug("Obtaining clip list from URL" + url)
+        log.debug(f"Obtaining clip list from URL {url})
         
         with aiohttp.ClientSession() as session:
             with session.get(url) as r:
