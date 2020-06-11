@@ -373,15 +373,15 @@ class StreamClips(commands.Cog):
             log.debug(f"Checking for new {stream.__class__.__name__ } clips from {stream.name}")
 
             #with contextlib.suppress(Exception):
-            if stream.__class__.__name__ == "TwitchStream":
+            """if stream.__class__.__name__ == "TwitchStream":
                 await self.maybe_renew_twitch_bearer_token()
                 embeds = await stream.get_clips()
             else:
-                embeds = await stream.get_clips()
+                embeds = await stream.get_clips()"""
             log.debug (f"{len(embeds)} clips found")
             await self.save_streams()
             
-            for channel_id in stream.channels:
+            """for channel_id in stream.channels:
                 channel = self.bot.get_channel(channel_id)
                 if not channel:
                     continue
@@ -417,7 +417,7 @@ class StreamClips(commands.Cog):
                 if edited_roles:
                     for role in edited_roles:
                         await role.edit(mentionable=False)
-                await self.save_streams()
+                await self.save_streams()"""
 
     async def _get_mention_str(self, guild: discord.Guild) -> Tuple[str, List[discord.Role]]:
         """Returns a 2-tuple with the string containing the mentions, and a list of
