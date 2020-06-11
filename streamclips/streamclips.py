@@ -14,6 +14,7 @@ from .streamtypes import (
 )
 from .errors import (
     APIError,
+    OfflineStream,
     InvalidTwitchCredentials,
     InvalidYoutubeCredentials,
     StreamNotFound,
