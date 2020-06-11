@@ -241,11 +241,12 @@ class StreamClips(commands.Cog):
                 self.streams.remove(stream)
             await ctx.send(
                 _(
-                    "I won't send notifications about {stream.name}'s clips in this channel anymore."
+                    "I won't send notifications about {stream.name} clips in this channel anymore."
                 ).format(stream=stream)
             )
 
         await self.save_streams()
+
 
     def get_stream(self, _class, name):
         for stream in self.streams:
