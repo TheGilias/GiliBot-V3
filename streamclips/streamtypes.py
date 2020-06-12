@@ -448,15 +448,13 @@ class MixerStream(Stream):
         with aiohttp.ClientSession() as session:
             with session.get(url) as r:
                 data = r.text(encoding="utf-8")
+                session.close()
         if r.status == 200:
             data = json.loads(data, strict=False)
-            session.close()
             return data["id"]
         elif r.status == 404:
-            session.close()
             raise StreamNotFound()
         else:
-            session.close()
             raise APIError()
         
 class PicartoStream(Stream):
