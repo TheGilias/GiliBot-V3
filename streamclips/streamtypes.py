@@ -450,10 +450,13 @@ class MixerStream(Stream):
                 data = r.text(encoding="utf-8")
         if r.status == 200:
             data = json.loads(data, strict=False)
+            session.close()
             return data["id"]
         elif r.status == 404:
+            session.close()
             raise StreamNotFound()
         else:
+            session.close()
             raise APIError()
         
 class PicartoStream(Stream):
