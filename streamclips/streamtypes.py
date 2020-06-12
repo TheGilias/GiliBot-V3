@@ -364,7 +364,7 @@ class MixerStream(Stream):
 
     token_name = None  # This streaming services don't currently require an API key
 
-    def get_clips(self):
+    async def get_clips(self):
         channel_id = await self.get_channel_id()
         url = "https://mixer.com/api/v1/clips/channels/" + channel_id
         #url = "https://mixer.com/api/v1/clips/channels/51623"
@@ -374,9 +374,9 @@ class MixerStream(Stream):
 
         return clip_embeds
         
-        with aiohttp.ClientSession() as session:
-            with session.get(url) as r:
-                data = r.text(encoding="utf-8")
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as r:
+                data = await r.text(encoding="utf-8")
         if r.status == 200:
             data = json.loads(data, strict=False)
             log.debug (f"{len(data)} clips found")
