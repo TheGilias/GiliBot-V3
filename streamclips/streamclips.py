@@ -247,16 +247,17 @@ class StreamClips(commands.Cog):
             is_yt = _class.__name__ == "YoutubeStream"
             is_twitch = _class.__name__ == "TwitchStream"
             if is_yt and not self.check_name_or_id(channel_name):
-                stream = _class(id=channel_name, token=token)
+                stream = _class(id=channel_name, token=token, lastchecked=datetime.utcnow().isoformat())
             elif is_twitch:
                 await self.maybe_renew_twitch_bearer_token()
                 stream = _class(
                     name=channel_name,
                     token=token.get("client_id"),
                     bearer=self.ttv_bearer_cache.get("access_token", None),
+                    lastchecked=datetime.utcnow().isoformat()
                 )
             else:
-                stream = _class(name=channel_name, token=token)
+                stream = _class(name=channel_name, token=token, lastchecked=datetime.utcnow().isoformat())
             try:
                 exists = await self.check_exists(stream)
             except InvalidTwitchCredentials:
@@ -375,9 +376,9 @@ class StreamClips(commands.Cog):
             with contextlib.suppress(Exception):
                 if stream.__class__.__name__ == "TwitchStream":
                     await self.maybe_renew_twitch_bearer_token()
-                    embeds = await stream.get_clips()
+                    embeds = await stream.get_clips(log)
                 else:
-                    embeds = await stream.get_clips()
+                    embeds = await stream.get_clips(log)
                 log.debug (f"{len(embeds)} clips found in get_clips")
                 await self.save_streams()
                 
@@ -412,11 +413,12 @@ class StreamClips(commands.Cog):
                                     str(stream.name), mass_mentions=True, formatting=True
                                 )
                             )
-
-                    m = await channel.send(content, embed=embeds)
-                    if edited_roles:
-                        for role in edited_roles:
-                            await role.edit(mentionable=False)
+                    for embed in embeds:
+                        m = await channel.send(content, embed=embed)
+                        if edited_roles:
+                            for role in edited_roles:
+                                await role.edit(mentionable=False)
+                    stream.last_checked = datetime.utcnow().isoformat() # Update the last checked time now that we're at the end.
                     await self.save_streams()
 
     async def _get_mention_str(self, guild: discord.Guild) -> Tuple[str, List[discord.Role]]:

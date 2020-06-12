@@ -1,3 +1,4 @@
+import sys
 import json
 import logging
 from random import choice
@@ -16,6 +17,7 @@ from .errors import (
     StreamNotFound,
 )
 from datetime import datetime
+from datetime import timedelta
 from redbot.core.utils.chat_formatting import humanize_number
 
 TWITCH_BASE_URL = "https://api.twitch.tv"
@@ -53,7 +55,7 @@ class Stream:
         self.name = kwargs.pop("name", None)
         self.channels = kwargs.pop("channels", [])
         # self.already_online = kwargs.pop("already_online", False)
-        self.last_checked = kwargs.pop("lastchecked", datetime.utcnow().isoformat())
+        self.last_checked = kwargs.pop("last_checked", None)
         self.type = self.__class__.__name__
 
     async def get_clips(self):
@@ -364,25 +366,37 @@ class MixerStream(Stream):
 
     token_name = None  # This streaming services don't currently require an API key
 
-    async def get_clips(self):
-        channel_id = await self.get_channel_id()
+    async def get_clips(self, logger):
+        channel_data = await self.get_channel_data(logger)
+        channel_id = str(channel_data["id"])
         url = "https://mixer.com/api/v1/clips/channels/" + channel_id
-        #url = "https://mixer.com/api/v1/clips/channels/51623"
+        
         clip_embeds = []
 
-        log.debug("Obtaining clip list from URL " + url)
+        logger.debug("Obtaining clip list from URL " + url)
 
-        return clip_embeds
-        
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as r:
                 data = await r.text(encoding="utf-8")
         if r.status == 200:
             data = json.loads(data, strict=False)
-            log.debug (f"{len(data)} clips found")
-            for currentitem in data.items():
-                clip_embeds += self.make_clip_embeds(currentitem)
-                
+            logger.debug (f"{len(data)} clips found")
+            lastcheckedtime = datetime.fromisoformat(self.last_checked) - timedelta(seconds=60) # New clips don't show up in the API until several seconds after upload. This is designed to catch those clips in case the check time is a little too close.
+            logger.debug (f"Looking for clips generated after {lastcheckedtime}")
+            
+            filtered_data = []
+            for currentitem in data:
+                shareableId = currentitem["shareableId"]
+                cliptime = datetime.fromisoformat(currentitem["uploadDate"].rpartition('.')[0]) # fromisoformat does not support the "Z" nor the 7 subsecond digits that Mixer adds to the end of the UTC clip time, so we'll remove the entire subsecond portion.
+                if cliptime > lastcheckedtime:
+                    logger.debug (f"Clip {shareableId} was created after last check. Adding to filtered data list.")
+                    filtered_data.append(currentitem)
+
+            logger.debug (f"{len(filtered_data)} clips found after last check")
+
+            for currentitem in filtered_data:
+                clip_embeds.append(self.make_clip_embeds(currentitem, channel_data, logger))
+                                
             return clip_embeds
         elif r.status == 404:
             raise StreamNotFound()
@@ -427,29 +441,34 @@ class MixerStream(Stream):
             embed.set_footer(text=("Playing: ") + data["type"]["name"])
         return embed
 
-    def make_clip_embeds(self, data):
+    def make_clip_embeds(self, data, channel_data, logger):
         default_avatar = "https://mixer.com/_latest/assets/images/main/avatars/default.jpg"
-        user = data["user"]
-        url = "https://mixer.com/" + data["token"]
+        user = channel_data["user"]
+        url = "https://mixer.com/" + channel_data["token"] + "?clip=" + data["shareableId"]
         embed = discord.Embed(title=data["title"], url=url)
         embed.set_author(name=user["username"])
         if user["avatarUrl"]:
             embed.set_thumbnail(url=user["avatarUrl"])
         else:
             embed.set_thumbnail(url=default_avatar)
-        if data["thumbnail"]:
-            embed.set_image(url=rnd(data["thumbnail"]["uri"]))
+        for locator in data["contentLocators"]:
+            if locator["locatorType"] == "Thumbnail_Large":
+                embed.set_image(url=locator["uri"])
         embed.color = 0x4C90F3  # pylint: disable=assigning-non-slot
+        return embed
 
-    async def get_channel_id(self):
+    async def get_channel_data(self, logger):
         url = "https://mixer.com/api/v1/channels/" + self.name
+
+        logger.debug("Obtaining channel data for " + self.name + " from URL " + url)
 
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as r:
                 data = await r.text(encoding="utf-8")
         if r.status == 200:
             data = json.loads(data, strict=False)
-            return data["id"]
+            logger.debug("Channel ID: " + str(data["id"]))
+            return data
         elif r.status == 404:
             raise StreamNotFound()
         else:
