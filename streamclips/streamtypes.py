@@ -29,7 +29,7 @@ YOUTUBE_SEARCH_ENDPOINT = YOUTUBE_BASE_URL + "/search"
 YOUTUBE_VIDEOS_ENDPOINT = YOUTUBE_BASE_URL + "/videos"
 YOUTUBE_CHANNEL_RSS = "https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}"
 
-log = logging.getLogger("redbot.GiliBot-V3.StreamClips")
+log = logging.getLogger("redbot.GiliBot-V3.StreamClips.Types")
 
 
 def rnd(url):
