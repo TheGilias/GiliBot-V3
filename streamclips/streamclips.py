@@ -375,9 +375,9 @@ class StreamClips(commands.Cog):
             with contextlib.suppress(Exception):
                 if stream.__class__.__name__ == "TwitchStream":
                     await self.maybe_renew_twitch_bearer_token()
-                    embeds = stream.get_clips()
+                    embeds = await stream.get_clips()
                 else:
-                    embeds = stream.get_clips()
+                    embeds = await stream.get_clips()
                 log.debug (f"{len(embeds)} clips found in get_clips")
                 await self.save_streams()
                 
