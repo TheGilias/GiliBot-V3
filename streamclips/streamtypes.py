@@ -55,7 +55,7 @@ class Stream:
         self.name = kwargs.pop("name", None)
         self.channels = kwargs.pop("channels", [])
         # self.already_online = kwargs.pop("already_online", False)
-        self.last_checked = kwargs.pop("last_checked", None)
+        self.knownclips = kwargs.pop("knownclips", [])
         self.type = self.__class__.__name__
 
     async def get_clips(self):
@@ -366,43 +366,33 @@ class MixerStream(Stream):
 
     token_name = None  # This streaming services don't currently require an API key
 
-    async def get_clips(self, logger):
+    async def seed_new_streamer(self, logger):
         channel_data = await self.get_channel_data(logger)
         channel_id = str(channel_data["id"])
-        url = "https://mixer.com/api/v1/clips/channels/" + channel_id
+
+        new_known_clips = []
+        all_clip_data = await self.get_all_clips(channel_id, logger)
+        for currentclip in all_clip_data:
+            new_known_clips.append(currentclip["shareableId"])
+        
+        self.knownclips = new_known_clips
+
+    async def get_new_clips(self, logger):
+        channel_data = await self.get_channel_data(logger)
+        channel_id = str(channel_data["id"])
         
         clip_embeds = []
-
-        logger.debug("Obtaining clip list from URL " + url)
-
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url) as r:
-                data = await r.text(encoding="utf-8")
-        if r.status == 200:
-            data = json.loads(data, strict=False)
-            logger.debug (f"{len(data)} clips found")
-            lastcheckedtime = datetime.fromisoformat(self.last_checked) - timedelta(seconds=60) # New clips don't show up in the API until several seconds after upload. This is designed to catch those clips in case the check time is a little too close.
-            logger.debug (f"Looking for clips generated after {lastcheckedtime}")
-            
-            filtered_data = []
-            for currentitem in data:
-                shareableId = currentitem["shareableId"]
-                cliptime = datetime.fromisoformat(currentitem["uploadDate"].rpartition('.')[0]) # fromisoformat does not support the "Z" nor the 7 subsecond digits that Mixer adds to the end of the UTC clip time, so we'll remove the entire subsecond portion.
-                if cliptime > lastcheckedtime:
-                    logger.debug (f"Clip {shareableId} was created after last check. Adding to filtered data list.")
-                    filtered_data.append(currentitem)
-
-            logger.debug (f"{len(filtered_data)} clips found after last check")
-
-            for currentitem in filtered_data:
-                clip_embeds.append(self.make_clip_embeds(currentitem, channel_data, logger))
-                                
-            return clip_embeds
-        elif r.status == 404:
-            raise StreamNotFound()
-        else:
-            raise APIError()
-
+        new_known_clips = []
+        all_clip_data = await self.get_all_clips(channel_id, logger)
+        for currentclip in all_clip_data:
+            new_known_clips.append(currentclip["shareableId"])
+            if self.knownclips.count(currentclip["shareableId"]) == 0:
+                logger.info (f"Streamer {self.name} has new clip {currentclip['shareableId']}. Generating embed.")
+                clip_embeds.append(self.make_clip_embeds(currentclip, channel_data, logger))
+        
+        self.knownclips = new_known_clips
+        return clip_embeds
+        
     async def is_online(self):
         url = "https://mixer.com/api/v1/channels/" + self.name
 
@@ -473,6 +463,27 @@ class MixerStream(Stream):
             raise StreamNotFound()
         else:
             raise APIError()
+
+    async def get_all_clips(self, channel_id, logger):
+        channel_data = await self.get_channel_data(logger)
+        url = "https://mixer.com/api/v1/clips/channels/" + channel_id
+        
+        channel_clips = []
+
+        logger.debug("Obtaining clip list from URL " + url)
+
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url) as r:
+                data = await r.text(encoding="utf-8")
+        if r.status == 200:
+            data = json.loads(data, strict=False)
+            logger.debug (f"{len(data)} clips found")
+            return data
+        elif r.status == 404:
+            raise StreamNotFound()
+        else:
+            raise APIError()
+
         
 class PicartoStream(Stream):
 

@@ -247,17 +247,16 @@ class StreamClips(commands.Cog):
             is_yt = _class.__name__ == "YoutubeStream"
             is_twitch = _class.__name__ == "TwitchStream"
             if is_yt and not self.check_name_or_id(channel_name):
-                stream = _class(id=channel_name, token=token, lastchecked=datetime.utcnow().isoformat())
+                stream = _class(id=channel_name, token=token)
             elif is_twitch:
                 await self.maybe_renew_twitch_bearer_token()
                 stream = _class(
                     name=channel_name,
                     token=token.get("client_id"),
-                    bearer=self.ttv_bearer_cache.get("access_token", None),
-                    lastchecked=datetime.utcnow().isoformat()
+                    bearer=self.ttv_bearer_cache.get("access_token", None)
                 )
             else:
-                stream = _class(name=channel_name, token=token, lastchecked=datetime.utcnow().isoformat())
+                stream = _class(name=channel_name, token=token)
             try:
                 exists = await self.check_exists(stream)
             except InvalidTwitchCredentials:
@@ -285,7 +284,8 @@ class StreamClips(commands.Cog):
                 if not exists:
                     await ctx.send(("That channel doesn't seem to exist."))
                     return
-
+            await stream.seed_new_streamer(log)
+            
         await self.add_or_remove(ctx, stream)
 
     @commands.group()
@@ -376,10 +376,10 @@ class StreamClips(commands.Cog):
             with contextlib.suppress(Exception):
                 if stream.__class__.__name__ == "TwitchStream":
                     await self.maybe_renew_twitch_bearer_token()
-                    embeds = await stream.get_clips(log)
+                    embeds = await stream.get_new_clips(log)
                 else:
-                    embeds = await stream.get_clips(log)
-                log.debug (f"{len(embeds)} clips found in get_clips")
+                    embeds = await stream.get_new_clips(log)
+                log.debug (f"{len(embeds)} clips found in get_new_clips")
                 await self.save_streams()
                 
                 for channel_id in stream.channels:
@@ -418,7 +418,7 @@ class StreamClips(commands.Cog):
                         if edited_roles:
                             for role in edited_roles:
                                 await role.edit(mentionable=False)
-                    stream.last_checked = datetime.utcnow().isoformat() # Update the last checked time now that we're at the end.
+                    #stream.last_checked = datetime.utcnow().isoformat() # Update the last checked time now that we're at the end.
                     await self.save_streams()
 
     async def _get_mention_str(self, guild: discord.Guild) -> Tuple[str, List[discord.Role]]:
