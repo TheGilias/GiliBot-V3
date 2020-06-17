@@ -371,7 +371,8 @@ class MixerStream(Stream):
         channel_id = str(channel_data["id"])
 
         new_known_clips = []
-        all_clip_data = await self.get_all_clips(channel_id, logger)
+        existing_data = []
+        all_clip_data = await self.get_all_clips(channel_id, logger, existing_data)
         for currentclip in all_clip_data:
             new_known_clips.append(currentclip["shareableId"])
         
@@ -383,7 +384,8 @@ class MixerStream(Stream):
         
         clip_embeds = []
         new_known_clips = []
-        all_clip_data = await self.get_all_clips(channel_id, logger)
+        existing_data = []
+        all_clip_data = await self.get_all_clips(channel_id, logger, existing_data)
         for currentclip in all_clip_data:
             new_known_clips.append(currentclip["shareableId"])
             if self.knownclips.count(currentclip["shareableId"]) == 0:
@@ -464,11 +466,13 @@ class MixerStream(Stream):
         else:
             raise APIError()
 
-    async def get_all_clips(self, channel_id, logger):
-        channel_data = await self.get_channel_data(logger)
-        url = "https://mixer.com/api/v1/clips/channels/" + channel_id
+    async def get_all_clips(self, channel_id, logger, existing_data=[], continuation_token=None):
+        if continuation_token is None:
+            url = "https://mixer.com/api/v1/clips/channels/" + channel_id
+        else:
+            url = "https://mixer.com/api/v1/clips/channels/" + channel_id + '?continuationToken=' + continuation_token
         
-        channel_clips = []
+        new_continuation_token = None
 
         logger.debug("Obtaining clip list from URL " + url)
 
@@ -477,8 +481,22 @@ class MixerStream(Stream):
                 data = await r.text(encoding="utf-8")
         if r.status == 200:
             data = json.loads(data, strict=False)
-            logger.debug (f"{len(data)} clips found")
-            return data
+            if data is None:
+                logger.debug ("No clips were returned by this API call. Returning existing data.")
+                logger.debug (f"{len(existing_data)} found in get_all_clips")
+                return existing_data # We've reached the end of the list.
+            else:
+                for clip_data in data:
+                    existing_data.append(clip_data)
+                    new_continuation_token = clip_data["uploadDate"]
+
+                if new_continuation_token is None:
+                    logger.debug ("No clips were returned by this API call. Returning existing data.")
+                    logger.debug (f"{len(existing_data)} found in get_all_clips")
+                    return existing_data # We've reached the end of the list.
+
+                logger.debug (f"We got some clips from this API call. Checking for more using continuation token {new_continuation_token}")
+                return (await self.get_all_clips(channel_id, logger, existing_data, new_continuation_token))
         elif r.status == 404:
             raise StreamNotFound()
         else:
