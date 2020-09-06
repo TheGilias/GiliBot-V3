@@ -174,6 +174,11 @@ class StreamClips(commands.Cog):
         """Manage automated stream clip alerts."""
         pass
 
+    @clipalert.command(name="twitch")
+    async def twitch_clip_alert(self, ctx: commands.Context, channel_name: str):
+        """Toggle alerts in this channel for a Twitch channel's clips."""
+        await self.stream_clip_alert(ctx, TwitchStream, channel_name)
+
     @clipalert.command(name="mixer")
     async def mixer_clip_alert(self, ctx: commands.Context, channel_name: str):
         """Toggle alerts in this channel for a Mixer channel's clips."""
