@@ -379,6 +379,7 @@ class StreamClips(commands.Cog):
             log.debug(f"Checking for new {stream.__class__.__name__ } clips from {stream.name}")
 
             with contextlib.suppress(Exception):
+                #try:
                 if stream.__class__.__name__ == "TwitchStream":
                     await self.maybe_renew_twitch_bearer_token()
                     embeds = await stream.get_new_clips(log)
@@ -425,6 +426,8 @@ class StreamClips(commands.Cog):
                                 await role.edit(mentionable=False)
                     #stream.last_checked = datetime.utcnow().isoformat() # Update the last checked time now that we're at the end.
                     await self.save_streams()
+                #except Exception as e:
+                #    log.error (f"Failed clip search/post/save with error {e}, {e.__traceback__}")
 
     async def _get_mention_str(self, guild: discord.Guild) -> Tuple[str, List[discord.Role]]:
         """Returns a 2-tuple with the string containing the mentions, and a list of

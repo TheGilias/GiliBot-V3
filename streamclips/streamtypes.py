@@ -216,9 +216,9 @@ class TwitchStream(Stream):
         
         new_known_clips = []
         existing_data = []
-        all_clip_data = await self.get_all_clips(logger, existing_data)
+        all_clip_data = await self.get_all_clips([logger, existing_data])
         for currentclip in all_clip_data:
-            new_known_clips.append(currentclip['id'])
+            new_known_clips.append([currentclip['id'], datetime.timestamp(datetime.now())])
         
         self.knownclips = new_known_clips
 
@@ -227,17 +227,37 @@ class TwitchStream(Stream):
             self.id = await self.fetch_id()
 
         clip_embeds = []
+        known_clips = self.knownclips
         new_known_clips = []
         existing_data = []
+        clipexpiration = datetime.timestamp(datetime.now() - timedelta(days=7))
+
+        # Loop through the known clips and re-add them to the new_known_clips based on whether their timestamp hasn't expired yet.
+        for existingclip in known_clips:
+            if isinstance(existingclip, list):
+                # Only re-add clips from the known clip list if they're less than 7 days old (giving a lot of margin just in case)
+                if clipexpiration < existingclip[1]:
+                    logger.debug(f"Adding clip {existingclip[0]} to new known clips because it hasn't aged off yet")
+                    new_known_clips.append(existingclip)
+            else:
+                # Readd this clip with the current date (this should only occur if migrating from the previous version which did not store timestamps with the clips)
+                logger.debug(f"Adding clip {existingclip} to new known clips because it has no timestamp")
+                new_known_clips.append([existingclip, datetime.timestamp(datetime.now())])
+
+        # Get the new clip data and add it to the embeds/known clips if it's new.
         all_clip_data = await self.get_all_clips(logger, existing_data)
         for currentclip in all_clip_data:
-            new_known_clips.append(currentclip['id'])
-
+            currentclipfound = False
+            for existingclip in new_known_clips:
+                if existingclip[0] == currentclip['id']:
+                    currentclipfound = True
+            
             # Sometimes Mixer's API returns old clips that their API wasn't returning for a bit. We are adding a time threshold check to make sure that any "new" clips found were recently created. Defining this as within 6 hours as a logic check.
             #cliptime = datetime.fromisoformat(currentclip["uploadDate"].rpartition('.')[0]) # fromisoformat does not support the "Z" nor the 7 subsecond digits that Mixer adds to the end of the UTC clip time, so we'll remove the entire subsecond portion.
             #clipthreshold = datetime.utcnow() - timedelta(hours=6)
-            if self.knownclips.count(currentclip['id']) == 0:
+            if currentclipfound == False:
                 logger.info (f"Streamer {self.name} has new clip {currentclip['id']}. Generating embed.")
+                new_known_clips.append([currentclip['id'], datetime.timestamp(datetime.now())])
                 try: 
                     clip_metadata = await self.get_clip_metadata(currentclip, logger)
                 except Exception as e:
