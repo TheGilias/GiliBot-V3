@@ -311,6 +311,30 @@ class StreamClips(commands.Cog):
             ("Refresh timer set to {refresh_time} seconds".format(refresh_time=refresh_time))
         )
 
+    @clipset.command()
+    @checks.is_owner()
+    async def twitchtoken(self, ctx: commands.Context):
+        """Explain how to set the twitch token."""
+        message = (
+            "To set the twitch API tokens, follow these steps:\n"
+            "1. Go to this page: https://dev.twitch.tv/dashboard/apps.\n"
+            "2. Click *Register Your Application*.\n"
+            "3. Enter a name, set the OAuth Redirect URI to `http://localhost`, and "
+            "select an Application Category of your choosing.\n"
+            "4. Click *Register*.\n"
+            "5. Copy your client ID and your client secret into:\n"
+            "{command}"
+            "\n\n"
+            "Note: These tokens are sensitive and should only be used in a private channel\n"
+            "or in DM with the bot.\n"
+        ).format(
+            command="`{}set api twitch client_id {} client_secret {}`".format(
+                ctx.clean_prefix, ("<your_client_id_here>"), ("<your_client_secret_here>")
+            )
+        )
+
+        await ctx.maybe_send_embed(message)
+
     async def add_or_remove(self, ctx: commands.Context, stream):
         if ctx.channel.id not in stream.channels:
             stream.channels.append(ctx.channel.id)
