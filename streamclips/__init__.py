@@ -1,5 +1,5 @@
 from .streamclips import StreamClips
 
-def setup(bot):
+async def setup(bot):
     cog = StreamClips(bot)
-    bot.add_cog(cog)
+    await bot.add_cog(cog)
